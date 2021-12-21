@@ -33,20 +33,17 @@ contract ECIOLockToken is Ownable, ReentrancyGuard {
     }
 
     constructor(
-        address _ecioTokenAddr
-
+        address _ecioTokenAddr,
+        uint256 _firstRealease,
+        uint256 _secondRealease
     ) {
         ECIO_TOKEN = _ecioTokenAddr;
 
-        periodTimeandAmount[PERIOD_1ST].time = 1640008800;
-        periodTimeandAmount[PERIOD_2ND].time = 1671570000;
+        periodTimeandAmount[PERIOD_1ST].time = _firstRealease;
+        periodTimeandAmount[PERIOD_2ND].time = _secondRealease;
 
     }
 
-
-  function setPeriodReleaseTime(uint8 _periodId, uint256 _releaseTime) public onlyOwner{
-      periodTimeandAmount[_periodId].time = _releaseTime;
-  }
 
   function setAmountPerPeriod(uint8 _periodId, uint256 _amount) public onlyOwner{
       periodTimeandAmount[_periodId].amount = _amount;
