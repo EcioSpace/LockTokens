@@ -34,20 +34,20 @@ contract ECIOLockToken is Ownable, ReentrancyGuard {
 
     constructor(
         address _ecioTokenAddr,
-        uint256 _firstRealease,
-        uint256 _secondRealease
+        uint256 _firstRealeaseTime,
+        uint256 _firstRealeaseAmount,
+        uint256 _secondRealeaseTime,
+        uint256 _secondRealeaseAmount
     ) {
         ECIO_TOKEN = _ecioTokenAddr;
 
-        periodTimeandAmount[PERIOD_1ST].time = _firstRealease;
-        periodTimeandAmount[PERIOD_2ND].time = _secondRealease;
+        periodTimeandAmount[PERIOD_1ST].time = _firstRealeaseTime;
+        periodTimeandAmount[PERIOD_2ND].amount = _firstRealeaseAmount;
+
+        periodTimeandAmount[PERIOD_2ND].time = _secondRealeaseTime;
+        periodTimeandAmount[PERIOD_1ST].amount = _secondRealeaseAmount;
 
     }
-
-
-  function setAmountPerPeriod(uint8 _periodId, uint256 _amount) public onlyOwner{
-      periodTimeandAmount[_periodId].amount = _amount;
-  }
 
   function _transferToOwner(address _owner, uint256 _amount, uint8 _periodId) public onlyOwner nonReentrant {
         require( block.timestamp >= periodTimeandAmount[_periodId].time, "RealeaseTime: Your time has not come" );
