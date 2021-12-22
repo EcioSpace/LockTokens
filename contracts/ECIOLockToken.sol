@@ -30,6 +30,7 @@ contract ECIOLockToken is Ownable, ReentrancyGuard {
     struct timeAndAmount{
       uint256 time;
       uint256 amount;
+      bool isClaim;
     }
 
     constructor(
@@ -43,19 +44,25 @@ contract ECIOLockToken is Ownable, ReentrancyGuard {
 
         periodTimeandAmount[PERIOD_1ST].time = _firstRealeaseTime;
         periodTimeandAmount[PERIOD_1ST].amount = _firstRealeaseAmount;
+        periodTimeandAmount[PERIOD_1ST].isClaim = false;
 
         periodTimeandAmount[PERIOD_2ND].time = _secondRealeaseTime;
         periodTimeandAmount[PERIOD_2ND].amount = _secondRealeaseAmount;
+        periodTimeandAmount[PERIOD_2ND].isClaim = false;
     }
 
 
-  function _transferToOwner(address _owner, uint8 _periodId) public onlyOwner nonReentrant {
+  function transferToOwner(address _owner, uint8 _periodId) public onlyOwner nonReentrant {
         uint256 amount =  periodTimeandAmount[_periodId].amount;
 
-        require( block.timestamp >= periodTimeandAmount[_periodId].time, "RealeaseTime: Your time has not come" );
 
+        require( periodTimeandAmount[_periodId].isClaim == false, "Claim: This period is claimed." );
+        require( block.timestamp >= periodTimeandAmount[_periodId].time, "RealeaseTime: Your time has not come." );
+
+        periodTimeandAmount[_periodId].isClaim = true;
         IERC20(ECIO_TOKEN).transfer(_owner, amount);
     }
+
 
   function checkIsAvailable(uint8 _periodId) public view returns (bool) {
         if( block.timestamp >= periodTimeandAmount[_periodId].time ) {
