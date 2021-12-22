@@ -25,7 +25,7 @@ contract ECIOLockToken is Ownable, ReentrancyGuard {
     uint8 public constant PERIOD_1ST  = 1;
     uint8 public constant PERIOD_2ND  = 2;
 
-    mapping(uint8 => timeAndAmount) periodTimeandAmount;
+    mapping(uint8 => timeAndAmount) public periodTimeandAmount;
 
     struct timeAndAmount{
       uint256 time;
