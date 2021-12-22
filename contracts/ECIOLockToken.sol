@@ -57,10 +57,6 @@ contract ECIOLockToken is Ownable, ReentrancyGuard {
         IERC20(ECIO_TOKEN).transfer(_owner, amount);
     }
 
-  function checkAmount(uint8 _periodId) public view returns (uint256) {
-      return periodTimeandAmount[_periodId].amount;
-  }
-
   function checkIsAvailable(uint8 _periodId) public view returns (bool) {
         if( block.timestamp >= periodTimeandAmount[_periodId].time ) {
           return true;
