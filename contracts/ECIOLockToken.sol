@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity >=0.8.0 <0.9.0;
 
 import "hardhat/console.sol";
 
@@ -42,18 +42,24 @@ contract ECIOLockToken is Ownable, ReentrancyGuard {
         ECIO_TOKEN = _ecioTokenAddr;
 
         periodTimeandAmount[PERIOD_1ST].time = _firstRealeaseTime;
-        periodTimeandAmount[PERIOD_2ND].amount = _firstRealeaseAmount;
+        periodTimeandAmount[PERIOD_1ST].amount = _firstRealeaseAmount;
 
         periodTimeandAmount[PERIOD_2ND].time = _secondRealeaseTime;
-        periodTimeandAmount[PERIOD_1ST].amount = _secondRealeaseAmount;
-
+        periodTimeandAmount[PERIOD_2ND].amount = _secondRealeaseAmount;
     }
 
-  function _transferToOwner(address _owner, uint256 _amount, uint8 _periodId) public onlyOwner nonReentrant {
+
+  function _transferToOwner(address _owner, uint8 _periodId) public onlyOwner nonReentrant {
+        uint256 amount =  periodTimeandAmount[_periodId].amount;
+
         require( block.timestamp >= periodTimeandAmount[_periodId].time, "RealeaseTime: Your time has not come" );
-        require( _amount <= periodTimeandAmount[_periodId].amount, "Amount: Token amount is too high" );
-        IERC20(ECIO_TOKEN).transfer(_owner, _amount);
+
+        IERC20(ECIO_TOKEN).transfer(_owner, amount);
     }
+
+  function checkAmount(uint8 _periodId) public view returns (uint256) {
+      return periodTimeandAmount[_periodId].amount;
+  }
 
   function checkIsAvailable(uint8 _periodId) public view returns (bool) {
         if( block.timestamp >= periodTimeandAmount[_periodId].time ) {
