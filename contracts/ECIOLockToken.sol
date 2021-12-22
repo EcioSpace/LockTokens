@@ -20,52 +20,46 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract ECIOLockToken is Ownable, ReentrancyGuard {
 
+    //ECIO token Address
     address public ECIO_TOKEN;
 
-    uint8 public constant PERIOD_1ST  = 1;
-    uint8 public constant PERIOD_2ND  = 2;
+    //Numbers of period of time, date, amount, isClaim.
+    timeAndAmount[] public periodId;
 
-    mapping(uint8 => timeAndAmount) public periodTimeandAmount;
 
     struct timeAndAmount{
-      uint256 time;
-      uint256 amount;
+      uint256 timeDate;
+      uint256 amountPerPeriod;
       bool isClaim;
     }
 
     constructor(
         address _ecioTokenAddr,
-        uint256 _firstRealeaseTime,
-        uint256 _firstRealeaseAmount,
-        uint256 _secondRealeaseTime,
-        uint256 _secondRealeaseAmount
+        uint256[] memory _timeDate,
+        uint256 _amountPerPeriod
+
     ) {
+        require(_ecioTokenAddr != address(0), "Vesting: Invalid token address");
         ECIO_TOKEN = _ecioTokenAddr;
 
-        periodTimeandAmount[PERIOD_1ST].time = _firstRealeaseTime;
-        periodTimeandAmount[PERIOD_1ST].amount = _firstRealeaseAmount;
-        periodTimeandAmount[PERIOD_1ST].isClaim = false;
-
-        periodTimeandAmount[PERIOD_2ND].time = _secondRealeaseTime;
-        periodTimeandAmount[PERIOD_2ND].amount = _secondRealeaseAmount;
-        periodTimeandAmount[PERIOD_2ND].isClaim = false;
+        for (uint256 i = 0; i < _timeDate.length; i++) {
+        periodId.push(timeAndAmount(_timeDate[i], _amountPerPeriod, false));
+        }
     }
 
+  function realeaseTheTokens(address _address, uint8 _periodId) public onlyOwner nonReentrant {
+        uint256 amount =  periodId[_periodId].amountPerPeriod;
 
-  function transferToOwner(address _owner, uint8 _periodId) public onlyOwner nonReentrant {
-        uint256 amount =  periodTimeandAmount[_periodId].amount;
+        require( periodId[_periodId].isClaim == false, "Claim: This period is claimed." );
+        require( block.timestamp >= periodId[_periodId].timeDate, "RealeaseTime: Your time has not come." );
 
-
-        require( periodTimeandAmount[_periodId].isClaim == false, "Claim: This period is claimed." );
-        require( block.timestamp >= periodTimeandAmount[_periodId].time, "RealeaseTime: Your time has not come." );
-
-        periodTimeandAmount[_periodId].isClaim = true;
-        IERC20(ECIO_TOKEN).transfer(_owner, amount);
+        periodId[_periodId].isClaim = true;
+        IERC20(ECIO_TOKEN).transfer(_address, amount);
     }
 
 
   function checkIsAvailable(uint8 _periodId) public view returns (bool) {
-        if( block.timestamp >= periodTimeandAmount[_periodId].time ) {
+        if( block.timestamp >= periodId[_periodId].timeDate ) {
           return true;
         } else {
           return false;
